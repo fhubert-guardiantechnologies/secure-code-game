@@ -14,7 +14,35 @@
 from collections import namedtuple
 
 Order = namedtuple('Order', 'id, items')
-Item = namedtuple('Item', 'type, description, amount, quantity')
+
+
+class Item:
+    def __init__(self, type, description, amount: float, quantity: int):
+        self.type = type
+        self.description = description
+        self._amount = amount
+        self._quantity = quantity
+
+    @property
+    def amount(self):
+        return self._clamp(self._amount, -1e6, 1e6)
+
+    @amount.setter
+    def amount(self, value):
+        self._amount = value
+
+    @property
+    def quantity(self):
+        return self._clamp(self._quantity, 0, 100)
+
+    @quantity.setter
+    def quantity(self, value):
+        self._quantity = value
+
+    @staticmethod
+    def _clamp(n, minn, maxn):
+        return max(min(maxn, n), minn)
+
 
 def validorder(order: Order):
     net = 0
@@ -27,7 +55,7 @@ def validorder(order: Order):
         else:
             return("Invalid item type: %s" % item.type)
     
-    if net != 0:
+    if (net - 0.0) < 0.0:
         return("Order ID: %s - Payment imbalance: $%0.2f" % (order.id, net))
     else:
         return("Order ID: %s - Full payment received!" % order.id)
